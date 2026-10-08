@@ -14,16 +14,19 @@ public class GeminiService {
 
     private final RestClient restClient = RestClient.create();
 
-    // Fast and Low-Traffic Gemini models list (Fallback order)
-    private final String[] lowTrafficModels = {
+    // Standard Gemini working models
+    private final String[] models = {
             "gemini-1.5-flash",
-            "gemini-1.5-flash-8b",
             "gemini-1.5-pro",
             "gemini-1.0-pro"
     };
 
     public String getAiResponse(String userPrompt) {
-        for (String model : lowTrafficModels) {
+        if (apiKey == null || apiKey.isBlank()) {
+            return "API Key is missing in server environment variables.";
+        }
+
+        for (String model : models) {
             try {
                 String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
 
@@ -52,16 +55,17 @@ public class GeminiService {
                                 String aiText = (String) part.get("text");
 
                                 if (aiText != null && !aiText.isBlank()) {
-                                    return "### [Model Used: " + model + "]\n\n" + aiText;
+                                    return aiText;
                                 }
                             }
                         }
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Model [" + model + "] failed or busy: " + e.getMessage() + ". Trying next model...");
+                // Render Logs-la exact error code and message print aagum
+                System.err.println("Gemini API call failed for model [" + model + "]: " + e.getMessage());
             }
         }
-        return "All Gemini models are currently busy. Please try again in a few seconds.";
+        return "All Gemini models are currently busy or returning errors. Please check Render Logs for details.";
     }
 }
