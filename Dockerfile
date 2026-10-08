@@ -12,9 +12,9 @@ WORKDIR /app/backend
 COPY backend/pom.xml ./
 COPY backend/src ./src
 
-# FIX: Copy build output from Angular dist folder directly to Spring Boot static resources
+# FIX: Copy files directly from where Angular outputs them (/app/backend/src/main/resources/static)
 RUN mkdir -p src/main/resources/static
-COPY --from=frontend-build /app/frontend/dist/*/browser/* src/main/resources/static/
+COPY --from=frontend-build /app/backend/src/main/resources/static/ src/main/resources/static/
 
 RUN mvn clean package -DskipTests
 
