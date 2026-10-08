@@ -14,11 +14,11 @@ public class GeminiService {
 
     private final RestClient restClient = RestClient.create();
 
-    // Standard Gemini working models
+    // Latest standard model names for production v1 endpoint
     private final String[] models = {
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-            "gemini-1.0-pro"
+            "gemini-2.5-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest"
     };
 
     public String getAiResponse(String userPrompt) {
@@ -28,7 +28,8 @@ public class GeminiService {
 
         for (String model : models) {
             try {
-                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+                // Changed v1beta -> v1
+                String url = "https://generativelanguage.googleapis.com/v1/models/" + model + ":generateContent?key=" + apiKey;
 
                 Map<String, Object> requestBody = Map.of(
                         "contents", List.of(
@@ -62,7 +63,6 @@ public class GeminiService {
                     }
                 }
             } catch (Exception e) {
-                // Render Logs-la exact error code and message print aagum
                 System.err.println("Gemini API call failed for model [" + model + "]: " + e.getMessage());
             }
         }
