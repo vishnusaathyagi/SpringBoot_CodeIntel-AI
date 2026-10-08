@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class GeminiService {
@@ -14,13 +15,6 @@ public class GeminiService {
 
     private final RestClient restClient = RestClient.create();
 
-    // Supported active production models for AI Studio
-    private final String[] models = {
-            "gemini-2.5-flash",
-            "gemini-2.0-flash",
-            "gemini-1.5-flash"
-    };
-
     public String getAiResponse(String userPrompt) {
         if (apiKey == null || apiKey.isBlank()) {
             return "API Key is missing in server environment variables.";
@@ -28,9 +22,21 @@ public class GeminiService {
 
         String cleanKey = apiKey.trim();
 
-        for (String model : models) {
+        // Step 1: Fetch all supported models for this specific API key directly from Google
+        List<String> availableModels = fetchAvailableModels(cleanKey);
+
+        if (availableModels.isEmpty()) {
+            return "Failed to retrieve model list from Google AI API. Key might be invalid or restricted.";
+        }
+
+        // Return the active models list to inspect directly
+        System.out.println("Available Models for this Key: " + availableModels);
+
+        // Step 2: Try calling generateContent for each model in the returned list
+        for (String modelName : availableModels) {
+            // Filter only for generateContent supported models
             try {
-                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + cleanKey;
+                String url = "https://generativelanguage.googleapis.com/v1beta/" + modelName + ":generateContent?key=" + cleanKey;
 
                 Map<String, Object> requestBody = Map.of(
                         "contents", List.of(
@@ -64,10 +70,31 @@ public class GeminiService {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Gemini API Error for model [" + model + "]: " + e.getMessage());
+                System.err.println("Execution failed for model [" + modelName + "]: " + e.getMessage());
             }
         }
 
-        return "Gemini API Connection failed. Please check Render Logs for specific endpoint details.";
+        return "Supported models found on Google: " + availableModels.toString() + " but prompt generation failed.";
+    }
+
+    private List<String> fetchAvailableModels(String cleanKey) {
+        try {
+            String listModelsUrl = "https://generativelanguage.googleapis.com/v1beta/models?key=" + cleanKey;
+
+            Map<?, ?> response = restClient.get()
+                    .uri(listModelsUrl)
+                    .retrieve()
+                    .body(Map.class);
+
+            if (response != null && response.containsKey("models")) {
+                List<Map<String, Object>> modelsList = (List<Map<String, Object>>) response.get("models");
+                return modelsList.stream()
+                        .map(m -> (String) m.get("name")) // Returns format: "models/gemini-1.5-flash"
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching models list: " + e.getMessage());
+        }
+        return List.of();
     }
 }
