@@ -16,17 +16,10 @@ public class GeminiService {
 
     // Fast and Low-Traffic Gemini models list (Fallback order)
     private final String[] lowTrafficModels = {
-            "gemini-2.5-flash",
-            "gemini-3.5-flash",
-            "gemini-3.7-flash",
-            "gemini-3.6-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-2.5-flash-lite",
-            "gemini-2.5-pro",
-            "gemini-flash-latest",
-            "gemini-pro-latest",
-            "gemma-4-31b-it",
-            "gemma-4-26b-a4b-it"
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-pro",
+            "gemini-1.0-pro"
     };
 
     public String getAiResponse(String userPrompt) {
