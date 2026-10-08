@@ -14,11 +14,11 @@ public class GeminiService {
 
     private final RestClient restClient = RestClient.create();
 
-    // Latest standard model names for production v1 endpoint
+    // Exact models recommended by Google in Render logs
     private final String[] models = {
-            "gemini-2.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro-latest"
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
     };
 
     public String getAiResponse(String userPrompt) {
@@ -28,8 +28,8 @@ public class GeminiService {
 
         for (String model : models) {
             try {
-                // Changed v1beta -> v1
-                String url = "https://generativelanguage.googleapis.com/v1/models/" + model + ":generateContent?key=" + apiKey;
+                // v1beta endpoint supports all current Gemini models
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
 
                 Map<String, Object> requestBody = Map.of(
                         "contents", List.of(
