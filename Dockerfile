@@ -12,9 +12,9 @@ WORKDIR /app/backend
 COPY backend/pom.xml ./
 COPY backend/src ./src
 
-# FIX: Copy files directly from where Angular outputs them (/app/backend/src/main/resources/static)
+# FIX: Copy files specifically from static/browser folder directly to static root
 RUN mkdir -p src/main/resources/static
-COPY --from=frontend-build /app/backend/src/main/resources/static/ src/main/resources/static/
+COPY --from=frontend-build /app/backend/src/main/resources/static/browser/ src/main/resources/static/
 
 RUN mvn clean package -DskipTests
 
