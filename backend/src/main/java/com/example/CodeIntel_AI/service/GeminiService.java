@@ -14,9 +14,8 @@ public class GeminiService {
 
     private final RestClient restClient = RestClient.create();
 
-    // Exact models recommended by Google in Render logs
+    // Exactly supported production models for AI Studio
     private final String[] models = {
-            "gemini-2.0-flash",
             "gemini-1.5-flash",
             "gemini-1.5-pro"
     };
@@ -26,10 +25,11 @@ public class GeminiService {
             return "API Key is missing in server environment variables.";
         }
 
+        String cleanKey = apiKey.trim();
+
         for (String model : models) {
             try {
-                // v1beta endpoint supports all current Gemini models
-                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + cleanKey;
 
                 Map<String, Object> requestBody = Map.of(
                         "contents", List.of(
@@ -63,9 +63,9 @@ public class GeminiService {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Gemini API call failed for model [" + model + "]: " + e.getMessage());
+                System.err.println("Gemini execution failed for [" + model + "]: " + e.getMessage());
             }
         }
-        return "All Gemini models are currently busy or returning errors. Please check Render Logs for details.";
+        return "All Gemini models are currently busy. Please check Render logs.";
     }
 }
