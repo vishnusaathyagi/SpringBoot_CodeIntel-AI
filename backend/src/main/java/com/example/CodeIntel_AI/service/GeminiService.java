@@ -14,13 +14,19 @@ public class GeminiService {
 
     private final RestClient restClient = RestClient.create();
 
-    // Best 5 Low Web-Traffic / Stable Models (Fallback Order)
+    // Fast and Low-Traffic Gemini models list (Fallback order)
     private final String[] lowTrafficModels = {
-            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash",
+            "gemini-3.5-flash",
+            "gemini-3.7-flash",
+            "gemini-3.6-flash",
             "gemini-3.1-flash-lite",
-            "gemini-3.5-flash-lite",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-pro",
+            "gemini-flash-latest",
+            "gemini-pro-latest",
             "gemma-4-31b-it",
-            "gemini-2.5-flash"
+            "gemma-4-26b-a4b-it"
     };
 
     public String getAiResponse(String userPrompt) {
@@ -46,17 +52,21 @@ public class GeminiService {
                     if (candidates != null && !candidates.isEmpty()) {
                         Map<?, ?> candidate = (Map<?, ?>) candidates.get(0);
                         Map<?, ?> content = (Map<?, ?>) candidate.get("content");
-                        List<?> parts = (List<?>) content.get("parts");
-                        Map<?, ?> part = (Map<?, ?>) parts.get(0);
+                        if (content != null && content.containsKey("parts")) {
+                            List<?> parts = (List<?>) content.get("parts");
+                            if (parts != null && !parts.isEmpty()) {
+                                Map<?, ?> part = (Map<?, ?>) parts.get(0);
+                                String aiText = (String) part.get("text");
 
-                        String aiText = (String) part.get("text");
-
-                        // Header-il model name include cheythu response return cheyyunnu
-                        return "### [Model Used: " + model + "]\n\n" + aiText;
+                                if (aiText != null && !aiText.isBlank()) {
+                                    return "### [Model Used: " + model + "]\n\n" + aiText;
+                                }
+                            }
+                        }
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Model [" + model + "] failed or busy: " + e.getMessage() + ". Trying next low-traffic model...");
+                System.out.println("Model [" + model + "] failed or busy: " + e.getMessage() + ". Trying next model...");
             }
         }
         return "All Gemini models are currently busy. Please try again in a few seconds.";

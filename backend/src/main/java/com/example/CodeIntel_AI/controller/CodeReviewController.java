@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/ai")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class CodeReviewController {
 
     private final GeminiService geminiService;
@@ -40,7 +40,7 @@ public class CodeReviewController {
                 request.getLanguage(),
                 request.getContext(),
                 request.getLanguage(),
-                request.getLanguage().toLowerCase(),
+                request.getLanguage() != null ? request.getLanguage().toLowerCase() : "",
                 request.getCodeSnippet()
         );
 
