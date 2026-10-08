@@ -13,7 +13,7 @@ COPY backend/pom.xml ./
 COPY backend/src ./src
 
 # Copy Angular dist build directly into Spring Boot static resources
-COPY --from=frontend-build /app/frontend/dist/browser/ ./src/main/resources/static/
+COPY --from=frontend-build /app/backend/src/main/resources/static/ ./src/main/resources/static/
 RUN mvn clean package -DskipTests
 
 # Stage 3: Lightweight Production Runtime
