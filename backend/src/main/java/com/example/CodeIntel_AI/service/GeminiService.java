@@ -14,10 +14,11 @@ public class GeminiService {
 
     private final RestClient restClient = RestClient.create();
 
-    // Exactly supported production models for AI Studio
+    // Supported active production models for AI Studio
     private final String[] models = {
-            "gemini-1.5-flash",
-            "gemini-1.5-pro"
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash"
     };
 
     public String getAiResponse(String userPrompt) {
@@ -63,9 +64,10 @@ public class GeminiService {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Gemini execution failed for [" + model + "]: " + e.getMessage());
+                System.err.println("Gemini API Error for model [" + model + "]: " + e.getMessage());
             }
         }
-        return "All Gemini models are currently busy. Please check Render logs.";
+
+        return "Gemini API Connection failed. Please check Render Logs for specific endpoint details.";
     }
 }
